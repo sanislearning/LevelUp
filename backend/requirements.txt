@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pymongo
+motor
+anthropic
+python-dotenv
+pydantic
+pydantic-settings
+python-multipart
