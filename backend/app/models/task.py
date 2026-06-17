@@ -116,4 +116,3 @@ class TaskClassifyResponse(BaseModel):
     confidence: float
     xpReward: int
 
-# Made with Bob

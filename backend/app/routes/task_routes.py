@@ -47,6 +47,13 @@ async def create_task(task: TaskCreate):
     result = await db.tasks.insert_one(task_dict)
     
     created_task = await db.tasks.find_one({"_id": result.inserted_id})
+    
+    if not created_task:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve created task"
+        )
+    
     created_task["_id"] = str(created_task["_id"])
     
     return {
@@ -173,6 +180,13 @@ async def update_task(task_id: str, task_update: dict):
     )
     
     updated_task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    
+    if not updated_task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found after update"
+        )
+    
     updated_task["_id"] = str(updated_task["_id"])
     
     return {
@@ -316,4 +330,3 @@ async def delete_task(task_id: str):
         "message": "Task deleted successfully"
     }
 
-# Made with Bob

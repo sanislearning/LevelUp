@@ -12,42 +12,99 @@ function App() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('today'); // 'today', 'all', 'completed'
+  const [userId, setUserId] = useState(null);
+  const [userError, setUserError] = useState(null);
+  const [showUserSetup, setShowUserSetup] = useState(false);
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
 
-  // For demo purposes, using a hardcoded user ID
-  // In production, this would come from authentication
-  const DEMO_USER_ID = '6789abcdef123456'; // Replace with actual user ID after creating user
+  // Get user ID from localStorage or prompt for setup
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('levelup_user_id');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setShowUserSetup(true);
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    loadUserData();
-    loadTasks();
-  }, [view]);
+    if (userId) {
+      loadUserData();
+      loadTasks();
+    }
+  }, [view, userId]);
 
   const loadUserData = async () => {
     try {
-      const response = await userAPI.getById(DEMO_USER_ID);
+      const response = await userAPI.getById(userId);
       setUser(response.data.user);
+      setUserError(null);
     } catch (error) {
       console.error('Error loading user:', error);
-      // If user doesn't exist, you might want to create one
       if (error.response?.status === 404) {
-        console.log('User not found. Please create a user first.');
+        setUserError('User not found. Please set up your account.');
+        setShowUserSetup(true);
+        localStorage.removeItem('levelup_user_id');
+        setUserId(null);
+      } else {
+        setUserError('Failed to load user data. Please check your connection.');
       }
     }
   };
 
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!newUserName.trim() || !newUserEmail.trim()) {
+      alert('Please enter both name and email');
+      return;
+    }
+
+    try {
+      const response = await userAPI.create({
+        name: newUserName.trim(),
+        email: newUserEmail.trim()
+      });
+      const createdUserId = response.data.user.id;
+      localStorage.setItem('levelup_user_id', createdUserId);
+      setUserId(createdUserId);
+      setShowUserSetup(false);
+      setUserError(null);
+      setNewUserName('');
+      setNewUserEmail('');
+    } catch (error) {
+      console.error('Error creating user:', error);
+      console.error('Error details:', error.response?.data);
+      alert('Failed to create user. Please try again.');
+    }
+  };
+
+  const handleResetUser = () => {
+    if (window.confirm('Are you sure you want to reset your user? This will clear your current user ID.')) {
+      localStorage.removeItem('levelup_user_id');
+      setUserId(null);
+      setUser(null);
+      setTasks([]);
+      setShowUserSetup(true);
+    }
+  };
+
   const loadTasks = async () => {
+    if (!userId) return;
+    
     setLoading(true);
     try {
       let response;
       if (view === 'today') {
-        response = await taskAPI.getTodayTasks(DEMO_USER_ID);
+        response = await taskAPI.getTodayTasks(userId);
         setTodayStats({
           completed: response.data.completed,
           pending: response.data.pending
         });
       } else {
         const params = view === 'completed' ? { completed: true } : {};
-        response = await taskAPI.getByUser(DEMO_USER_ID, params);
+        response = await taskAPI.getByUser(userId, params);
       }
       setTasks(response.data.tasks);
     } catch (error) {
@@ -93,11 +150,66 @@ function App() {
   const pendingTasks = tasks.filter(t => !t.completed);
   const completedTasks = tasks.filter(t => t.completed);
 
+  // Show user setup screen if no user ID
+  if (showUserSetup) {
+    return (
+      <div className="app">
+        <header className="app-header">
+          <h1>LevelUp</h1>
+          <p className="tagline">Your Life is an RPG</p>
+        </header>
+        <div className="user-setup">
+          <div className="setup-card">
+            <h2>Welcome to LevelUp</h2>
+            <p>Create your account to start your journey</p>
+            {userError && <div className="error-message">{userError}</div>}
+            <form onSubmit={handleCreateUser}>
+              <div className="form-group">
+                <label htmlFor="name">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  placeholder="Enter your name"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Start Your Journey
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>⚔️ LevelUp</h1>
+        <h1>LevelUp</h1>
         <p className="tagline">Your Life is an RPG</p>
+        {user && (
+          <button
+            className="btn-reset-user"
+            onClick={handleResetUser}
+            title="Reset User"
+          >
+            Settings
+          </button>
+        )}
       </header>
 
       <div className="app-container">
@@ -112,19 +224,19 @@ function App() {
                 className={`tab ${view === 'today' ? 'active' : ''}`}
                 onClick={() => setView('today')}
               >
-                📅 Today
+                Today
               </button>
               <button
                 className={`tab ${view === 'all' ? 'active' : ''}`}
                 onClick={() => setView('all')}
               >
-                📋 All Tasks
+                All Tasks
               </button>
               <button
                 className={`tab ${view === 'completed' ? 'active' : ''}`}
                 onClick={() => setView('completed')}
               >
-                ✓ Completed
+                Completed
               </button>
             </div>
 
@@ -132,7 +244,7 @@ function App() {
               className="btn btn-primary btn-add-task"
               onClick={() => setShowTaskForm(!showTaskForm)}
             >
-              {showTaskForm ? '✕ Cancel' : '+ New Task'}
+              {showTaskForm ? 'Cancel' : 'New Task'}
             </button>
           </div>
 
@@ -149,9 +261,15 @@ function App() {
             </div>
           )}
 
+          {userError && (
+            <div className="error-banner">
+              {userError}
+            </div>
+          )}
+
           {showTaskForm && (
             <TaskForm
-              userId={DEMO_USER_ID}
+              userId={userId}
               onTaskCreated={handleTaskCreated}
               onCancel={() => setShowTaskForm(false)}
             />
@@ -206,4 +324,3 @@ function App() {
 
 export default App;
 
-// Made with Bob

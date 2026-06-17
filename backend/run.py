@@ -9,4 +9,3 @@ if __name__ == "__main__":
         reload=True if settings.ENVIRONMENT == "development" else False
     )
 
-# Made with Bob

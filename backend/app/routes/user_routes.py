@@ -4,6 +4,7 @@ from app.config.database import get_database
 from app.utils.xp_calculator import calculate_level, get_title
 from bson import ObjectId
 from datetime import datetime
+from typing import Optional
 
 router = APIRouter()
 
@@ -32,6 +33,12 @@ async def create_user(user: UserCreate):
     result = await db.users.insert_one(user_dict)
     
     created_user = await db.users.find_one({"_id": result.inserted_id})
+    if not created_user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve created user"
+        )
+    
     created_user["_id"] = str(created_user["_id"])
     
     return {
@@ -141,7 +148,7 @@ async def get_user_stats(user_id: str):
 
 
 @router.put("/{user_id}", response_model=dict)
-async def update_user(user_id: str, name: str = None):
+async def update_user(user_id: str, name: Optional[str] = None):
     """Update user profile"""
     db = get_database()
     
@@ -170,6 +177,11 @@ async def update_user(user_id: str, name: str = None):
         )
     
     updated_user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found after update"
+        )
     
     return {
         "success": True,
@@ -180,4 +192,3 @@ async def update_user(user_id: str, name: str = None):
         }
     }
 
-# Made with Bob

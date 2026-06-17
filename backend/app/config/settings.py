@@ -1,4 +1,5 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 from typing import Optional
 
 
@@ -6,8 +7,8 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
     PORT: int = 5000
-    MONGODB_URI: str
-    ANTHROPIC_API_KEY: str
+    MONGODB_URI: str = Field(..., description="MongoDB connection URI")
+    ANTHROPIC_API_KEY: str = Field(..., description="Anthropic API key for AI features")
     ENVIRONMENT: str = "development"
     
     # CORS settings
@@ -18,11 +19,12 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000"
     ]
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore"
+    )
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]
 
-# Made with Bob

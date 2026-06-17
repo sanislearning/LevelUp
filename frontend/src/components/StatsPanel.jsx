@@ -94,4 +94,3 @@ const StatsPanel = ({ user }) => {
 
 export default StatsPanel;
 
-// Made with Bob

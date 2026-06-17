@@ -64,4 +64,3 @@ async def health_check():
 app.include_router(user_routes.router, prefix="/api/users", tags=["users"])
 app.include_router(task_routes.router, prefix="/api/tasks", tags=["tasks"])
 
-# Made with Bob

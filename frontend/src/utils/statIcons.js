@@ -37,4 +37,3 @@ export const getStatName = (stat) => STAT_NAMES[stat] || stat;
 export const getStatColor = (stat) => STAT_COLORS[stat] || '#6b7280';
 export const getDifficultyColor = (difficulty) => DIFFICULTY_COLORS[difficulty] || '#6b7280';
 
-// Made with Bob

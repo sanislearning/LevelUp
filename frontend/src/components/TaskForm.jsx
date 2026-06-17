@@ -115,7 +115,7 @@ const TaskForm = ({ userId, onTaskCreated, onCancel }) => {
             disabled={isClassifying || !title.trim()}
             className="btn btn-classify"
           >
-            {isClassifying ? '🤖 Classifying...' : '🤖 Classify with AI'}
+            {isClassifying ? 'Classifying...' : 'Classify with AI'}
           </button>
         )}
 
@@ -195,7 +195,7 @@ const TaskForm = ({ userId, onTaskCreated, onCancel }) => {
                 disabled={isSubmitting}
                 className="btn btn-primary"
               >
-                {isSubmitting ? 'Creating...' : '✓ Create Task'}
+                {isSubmitting ? 'Creating...' : 'Create Task'}
               </button>
               <button
                 type="button"
@@ -203,7 +203,7 @@ const TaskForm = ({ userId, onTaskCreated, onCancel }) => {
                 disabled={isSubmitting}
                 className="btn btn-secondary"
               >
-                ← Reclassify
+                Reclassify
               </button>
               {onCancel && (
                 <button
@@ -225,4 +225,3 @@ const TaskForm = ({ userId, onTaskCreated, onCancel }) => {
 
 export default TaskForm;
 
-// Made with Bob

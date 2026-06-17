@@ -56,7 +56,7 @@ Respond ONLY with valid JSON in this exact format:
 }}"""
 
         message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-haiku-4-5",
             max_tokens=500,
             messages=[{
                 "role": "user",
@@ -70,8 +70,7 @@ Respond ONLY with valid JSON in this exact format:
         
         # Find JSON in response
         import json
-        import re
-        
+        import re   
         json_match = re.search(r'\{[\s\S]*\}', response_text)
         if not json_match:
             raise ValueError("Failed to extract JSON from AI response")
@@ -137,4 +136,3 @@ def normalize_stat_name(stat_name: str) -> str:
     normalized = stat_name.lower().replace(" ", "_")
     return stat_map.get(normalized, "discipline")
 
-# Made with Bob

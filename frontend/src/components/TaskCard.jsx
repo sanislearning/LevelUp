@@ -37,16 +37,16 @@ const TaskCard = ({ task, onComplete, onEdit, onDelete }) => {
         {!task.completed && (
           <div className="task-actions">
             <button onClick={handleComplete} className="btn btn-complete">
-              ✓ Complete
+              Complete
             </button>
             {onEdit && (
               <button onClick={() => onEdit(task)} className="btn btn-edit">
-                ✏️
+                Edit
               </button>
             )}
             {onDelete && (
               <button onClick={() => onDelete(task._id)} className="btn btn-delete">
-                🗑️
+                Delete
               </button>
             )}
           </div>
@@ -54,7 +54,7 @@ const TaskCard = ({ task, onComplete, onEdit, onDelete }) => {
 
         {task.completed && (
           <div className="task-completed">
-            <span className="completed-badge">✓ Completed</span>
+            <span className="completed-badge">Completed</span>
           </div>
         )}
       </div>
@@ -74,4 +74,3 @@ const TaskCard = ({ task, onComplete, onEdit, onDelete }) => {
 
 export default TaskCard;
 
-// Made with Bob

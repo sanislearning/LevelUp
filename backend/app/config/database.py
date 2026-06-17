@@ -1,11 +1,11 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.server_api import ServerApi
 from app.config.settings import settings
 from typing import Optional
 
 # MongoDB client instance
 client: Optional[AsyncIOMotorClient] = None
-database = None
+database: Optional[AsyncIOMotorDatabase] = None
 
 
 async def connect_to_mongo():
@@ -38,8 +38,9 @@ async def close_mongo_connection():
         print("MongoDB connection closed")
 
 
-def get_database():
+def get_database() -> AsyncIOMotorDatabase:
     """Get database instance"""
+    if database is None:
+        raise RuntimeError("Database not initialized. Call connect_to_mongo() first.")
     return database
 
-# Made with Bob

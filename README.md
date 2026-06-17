@@ -14,10 +14,11 @@ Transform your daily tasks into an RPG-like progression system. Complete tasks, 
 ## 🏗️ Tech Stack
 
 ### Backend
-- **Node.js** + **Express**: RESTful API server
+- **Python 3.8+** + **FastAPI**: High-performance async RESTful API server
 - **MongoDB**: Database for users and tasks
+- **Motor**: Async MongoDB driver for Python
 - **Anthropic Claude API**: AI-powered task classification
-- **Mongoose**: MongoDB object modeling
+- **Pydantic**: Data validation and settings management
 
 ### Frontend
 - **React** (Vite): Fast, modern UI framework
@@ -26,7 +27,7 @@ Transform your daily tasks into an RPG-like progression system. Complete tasks, 
 
 ## 📋 Prerequisites
 
-- Node.js (v16 or higher)
+- Python 3.8 or higher
 - MongoDB (local or Atlas)
 - Anthropic API key ([Get one here](https://console.anthropic.com/))
 
@@ -44,8 +45,12 @@ cd levelup-app
 ```bash
 cd backend
 
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install dependencies
-npm install
+pip install -r requirements.txt
 
 # Create .env file
 cp .env.example .env
@@ -54,7 +59,7 @@ cp .env.example .env
 # Required:
 # - MONGODB_URI=mongodb://localhost:27017/levelup
 # - ANTHROPIC_API_KEY=your_api_key_here
-# - PORT=5000
+# - PORT=8000
 ```
 
 ### 3. Frontend Setup
@@ -89,10 +94,15 @@ mongod
 
 ```bash
 cd backend
-npm run dev
+# Activate virtual environment if not already active
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Run with uvicorn
+python run.py
+# Or directly: uvicorn app.main:app --reload --port 8000
 ```
 
-Backend will run on `http://localhost:5000`
+Backend will run on `http://localhost:8000`
 
 ### Start Frontend Development Server
 
@@ -110,7 +120,7 @@ Frontend will run on `http://localhost:5173`
 Before using the app, create a user via API:
 
 ```bash
-curl -X POST http://localhost:5000/api/users \
+curl -X POST http://localhost:8000/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Your Name",
@@ -201,20 +211,20 @@ Unlock titles as you level up:
 
 ### Adjust XP Formula
 
-Edit `backend/src/utils/xpCalculator.js`:
+Edit `backend/app/utils/xp_calculator.py`:
 
-```javascript
-const EFFORT_MULTIPLIER = 1.5; // Increase for more XP impact
-const calculateXPForLevel = (level) => {
-  return Math.round(100 * Math.pow(level, 1.3)); // Adjust exponent
-};
+```python
+EFFORT_MULTIPLIER = 1.5  # Increase for more XP impact
+
+def calculate_xp_for_level(level: int) -> int:
+    return round(100 * (level ** 1.3))  # Adjust exponent
 ```
 
 ### Add New Stats
 
-1. Update `backend/src/models/User.js` stats schema
+1. Update `backend/app/models/user.py` stats schema
 2. Update `frontend/src/utils/statIcons.js` with new stat icons/colors
-3. Update AI prompt in `backend/src/services/aiService.js`
+3. Update AI prompt in `backend/app/services/ai_service.py`
 
 ## 🐛 Troubleshooting
 
@@ -229,9 +239,9 @@ const calculateXPForLevel = (level) => {
 - Review error logs in backend console
 
 ### Frontend Can't Connect to Backend
-- Ensure backend is running on port 5000
-- Check `VITE_API_URL` in frontend `.env`
-- Verify CORS is enabled in backend
+- Ensure backend is running on port 8000
+- Check `VITE_API_URL` in frontend `.env` (should be http://localhost:8000/api)
+- Verify CORS is enabled in backend (FastAPI CORS middleware)
 
 ## 📈 Future Enhancements
 
@@ -259,4 +269,4 @@ For issues or questions, please open an issue on GitHub.
 
 ---
 
-**Built with ❤️ using React, Node.js, MongoDB, and Claude AI**
+**Built with ❤️ using React, Python FastAPI, MongoDB, and Claude AI**

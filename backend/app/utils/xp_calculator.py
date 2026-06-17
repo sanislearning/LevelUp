@@ -2,6 +2,7 @@
 XP Calculator with adjusted leveling curve
 Slower progression at higher levels as requested
 """
+from typing import Optional
 
 DIFFICULTY_BASE_XP = {
     "easy": 5,
@@ -73,7 +74,7 @@ def calculate_level(total_xp: int) -> dict:
     }
 
 
-def distribute_xp(total_xp: int, primary_stat: str, secondary_stat: str = None) -> dict:
+def distribute_xp(total_xp: int, primary_stat: str, secondary_stat: Optional[str] = None) -> dict:
     """
     Distribute XP to stats
     
@@ -117,4 +118,3 @@ def get_title(level: int) -> str:
     else:
         return "Beginner"
 
-# Made with Bob
